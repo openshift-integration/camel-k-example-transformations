@@ -1,5 +1,5 @@
-// camel-k: language=java property-file=transformation.properties dependency=camel:jacksonxml dependency=camel:http
-// camel-k: source=customizers/MongoCustomizer.java source=customizers/CSVCustomizer.java source=customizers/PostgreSQLCustomizer.java
+// camel-k: language=java property-file=transformation.properties dependency=camel:jacksonxml dependency=camel:http dependency=camel:gson
+// camel-k: source=customizers/CSVCustomizer.java source=customizers/PostgreSQLCustomizer.java
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +10,7 @@ import org.apache.camel.AggregationStrategy;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.model.dataformat.JsonLibrary;
 import org.apache.camel.processor.aggregate.AbstractListAggregationStrategy;
 
 public class Transformations extends RouteBuilder {
@@ -64,13 +65,15 @@ public class Transformations extends RouteBuilder {
         .aggregate(constant(true), aggregationStrategy)
         .completionSize(5)
         .process(buildGeoJSON)
+        .marshal().json(JsonLibrary.Gson)
 
-        //and finally store the result on mongoDB
-        .to("mongodb:mongoBean?database=example&collection=mySpatialObjects&operation=insert")
+        .to("log:info?showBody=true")
+        //and finally store the result on the postgres database 
+        .setBody(simple("INSERT INTO measurements (geojson) VALUES ('${body}')"))
+        .to("jdbc:postgresBean")
         
         //Write some log to know it finishes properly
-        .log("Information stored")
-        .to("log:info?showBodyType=true");
+        .log("Information stored");
   }
 
   private final class CollectToListStrategy 

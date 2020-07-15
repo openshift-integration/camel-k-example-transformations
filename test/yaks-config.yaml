@@ -2,8 +2,6 @@ config:
   namespace:
     temporary: true
 pre:
-- name: Create MongoDB 
-  script: scripts/createMongoDB.sh
 - name: Create PostgreSQL 
   script: scripts/createPostgreSQL.sh
 - name: integrations

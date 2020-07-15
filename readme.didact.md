@@ -53,14 +53,6 @@ oc new-project camel-transformations
 ```
 ([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$oc%20new-project%20camel-transformations&completion=New%20project%20creation. "Opens a new terminal and sends the command above"){.didact})
 
-
-We'll connect to the `camel-transformations` project and check the installation status:
-
-```
-oc project camel-transformations
-```
-([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$oc%20project%20camel-transformations&completion=Changed%20to%20project%20camel-transformations. "Opens a new terminal and sends the command above"){.didact})
-
 Now we can proceed with the next requirement.
 
 **Apache Camel K CLI ("kamel")**
@@ -114,51 +106,15 @@ When Camel K is installed, you should find an entry related to `red-hat-camel-k-
 
 You can now proceed to the next section.
 
-## 2. Setting up complementary databases
+## 2. Setting up complementary database
 
-On this example we are going to use a PostgreSQL database to retrieve data and a MongoDB database to store the output.
-
-```
-oc new-app --name="mongodb" --template=mongodb-persistent  \
--e MONGODB_USER=camel-k-example -e MONGODB_PASSWORD=transformations  \
--e MONGODB_DATABASE=example -e MONGODB_ADMIN_PASSWORD=compleexpasswrd
-```
-
-([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$oc%20new-app%20--name=%22mongodb%22%20--template=mongodb-persistent%20-e%20MONGODB_USER=camel-k-example%20-e%20MONGODB_PASSWORD=transformations%20-e%20MONGODB_DATABASE=example%20-e%20MONGODB_ADMIN_PASSWORD=compleexpasswrd&completion=MongoDB%20database%20created. "Create MongoDB"){.didact})
-
-Then we create a PostgreSQL database and add some basic dummy data.
+On this example we are going to use a PostgreSQL database to retrieve and store data. To install and populate a demo database use the following command:
 
 ```
-oc new-app --name="postgres" --template=postgresql-ephemeral \
--e POSTGRESQL_USER=camel-k-example \
--e POSTGRESQL_PASSWORD=transformations \
--e POSTGRESQL_DATABASE=example
+sed 's/${YAKS_NAMESPACE}/camel-transformations/g' test/scripts/createPostgreSQL.sh | bash
 ```
 
-([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$oc%20new-app%20--name=%22postgres%22%20--template=postgresql-ephemeral%20-e%20POSTGRESQL_USER=camel-k-example%20-e%20POSTGRESQL_PASSWORD=transformations%20-e%20POSTGRESQL_DATABASE=example&completion=PostgreSQL%20Database%20created. "Create PostgreSQL"){.didact})
-
-We connect to the database pod to create a table and add data to be extracted later.
-
-```
-oc rsh $(oc get pods -o custom-columns=POD:.metadata.name --no-headers | grep postgresql | grep -v deploy)
-```
-
-([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$oc%20rsh%20$(oc%20get%20pods%20-o%20custom-columns=POD:.metadata.name%20--no-headers%20%7C%20grep%20postgresql%20%7C%20grep%20-v%20deploy)&completion=Connected%20to%20pod. "oc rsh pod"){.didact})
-
-```
-psql -U camel-k-example example \
--c "CREATE TABLE descriptions (id varchar(10), info varchar(30));
-INSERT INTO descriptions (id, info) VALUES ('SO2', 'Nitric oxide is a free radical');
-INSERT INTO descriptions (id, info) VALUES ('NO2', 'Toxic gas');"
-```
-
-([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$psql%20-U%20camel-k-example%20example%20-c%20%22CREATE%20TABLE%20descriptions%20(id%20varchar(10),%20info%20varchar(30));INSERT%20INTO%20descriptions%20(id,%20info)%20VALUES%20('SO2',%20'Nitric%20oxide%20is%20a%20free%20radical');INSERT%20INTO%20descriptions%20(id,%20info)%20VALUES%20('NO2',%20'Toxic%20gas');%22&completion=Connected%20to%20database%20and%20added%20data. "psql -U camel-k-example example"){.didact})
-
-```
-exit
-```
-
-([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$exit&completion=Pod%20connection%20closed. "Pod connection closed."){.didact})
+([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$sed%20's%2F%24%7BYAKS_NAMESPACE%7D%2Fcamel-transformations%2Fg'%20test%2Fscripts%2FcreatePostgreSQL.sh%20%7C%20bash&completion=PostgreSQL%20Database%20created. "Create PostgreSQL"){.didact})
 
 
 ## 3. Running the integration
