@@ -1,6 +1,6 @@
 # Camel K Transformations Example
  
-![Camel K CI](https://github.com/openshift-integration/camel-k-example-basic/workflows/Camel%20K%20CI/badge.svg)
+![Camel K CI](https://github.com/openshift-integration/camel-k-example-transformations/workflows/Camel%20K%20CI/badge.svg)
 
 This example demonstrates how to transform data with Camel K by showing how to deal with common formats like XML and JSON and how to connect to databases.
 
