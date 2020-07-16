@@ -4,7 +4,7 @@ This example demonstrates how to transform data with Camel K by showing how to d
 
 ![Flux diagram](images/flux_diagram.svg)
 
-We will start by reading a CSV file and loop over each row independently. For each row, we will query an XML API and a database and use all the data collected to build a JSON file. Finally we will collect and aggregate all rows to build a final JSON to be stored on a MongoDB. The final JSON is also a valid [GeoJSON](https://geojson.org/).
+We will start by reading a CSV file and loop over each row independently. For each row, we will query an XML API and a database and use all the data collected to build a JSON file. Finally we will collect and aggregate all rows to build a final JSON to be stored on a database. The final JSON is also a valid [GeoJSON](https://geojson.org/).
 
 ## Before you begin
 
@@ -106,13 +106,39 @@ You can now proceed to the next section.
 
 ## 2. Setting up complementary database
 
-On this example we are going to use a PostgreSQL database to retrieve and store data. To install and populate a demo database use the following command:
+This example uses a PostgreSQL database. We want to install it on a the project `camel-transformations`. We can go to the OpenShift 4.x WebConsole page, use the OperatorHub menu item on the left hand side menu and use it to find and install "PostgreSQL Operator by Dev4Ddevs.com". This will install the operator and may take a couple minutes to install.
+
+Once the operator is installed, we can create a new database using
 
 ```
-sed 's/${YAKS_NAMESPACE}/camel-transformations/g' test/scripts/createPostgreSQL.sh | bash
+oc create -f test/resources/postgres.yaml -n camel-transformations
+```
+([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$oc%20create%20-f%20test%2Fresources%2Fpostgres.yaml%20-n%20camel-transformations&completion=Create%20Database. "Create database"){.didact})
+
+We connect to the database pod to create a table and add data to be extracted later.
+
+```
+oc rsh $(oc get pods -o custom-columns=POD:.metadata.name --no-headers | grep mypostgre | grep -v deploy)
 ```
 
-([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$sed%20's%2F%24%7BYAKS_NAMESPACE%7D%2Fcamel-transformations%2Fg'%20test%2Fscripts%2FcreatePostgreSQL.sh%20%7C%20bash&completion=PostgreSQL%20Database%20created. "Create PostgreSQL"){.didact})
+([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$oc%20rsh%20$(oc%20get%20pods%20-o%20custom-columns=POD:.metadata.name%20--no-headers%20%7C%20grep%20mypostgre%20%7C%20grep%20-v%20deploy)&completion=Connected%20to%20pod. "oc rsh pod"){.didact})
+
+```
+psql -U camel-k-example example \
+-c "CREATE TABLE descriptions (id varchar(10), info varchar(30));
+CREATE TABLE measurements (id serial, geojson varchar);
+INSERT INTO descriptions (id, info) VALUES ('SO2', 'Nitric oxide is a free radical');
+INSERT INTO descriptions (id, info) VALUES ('NO2', 'Toxic gas');"
+```
+
+([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$psql%20-U%20camel-k-example%20example%20-c%20%22CREATE%20TABLE%20descriptions%20(id%20varchar(10),%20info%20varchar(30));CREATE%20TABLE%20measurements%20(id%20serial,%20geojson%20varchar);INSERT%20INTO%20descriptions%20(id,%20info)%20VALUES%20('SO2',%20'Nitric%20oxide%20is%20a%20free%20radical');INSERT%20INTO%20descriptions%20(id,%20info)%20VALUES%20('NO2',%20'Toxic%20gas');%22&completion=Connected%20to%20database%20and%20added%20data. "psql -U camel-k-example example"){.didact})
+
+```
+exit
+```
+
+([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$exit&completion=Pod%20connection%20closed. "Pod connection closed."){.didact})
+
 
 
 ## 3. Running the integration
