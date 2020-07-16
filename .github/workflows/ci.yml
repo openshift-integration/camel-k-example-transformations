@@ -3,10 +3,10 @@ name: Camel K CI
 on:
   pull_request:
     branches:
-      - master
+      - canon
   push:
     branches:
-      - master
+      - canon
 
 jobs:
   playground-test:
