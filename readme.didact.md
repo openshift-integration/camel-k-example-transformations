@@ -111,17 +111,17 @@ This example uses a PostgreSQL database. We want to install it on a the project 
 Once the operator is installed, we can create a new database using
 
 ```
-oc create -f test/resources/postgres.yaml -n camel-transformations
+oc create -f test/resources/postgres.yaml
 ```
-([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$oc%20create%20-f%20test%2Fresources%2Fpostgres.yaml%20-n%20camel-transformations&completion=Create%20Database. "Create database"){.didact})
+([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$oc%20create%20-f%20test%2Fresources%2Fpostgres.yaml&completion=Create%20Database. "Create database"){.didact})
 
 We connect to the database pod to create a table and add data to be extracted later.
 
 ```
-oc rsh $(oc get pods -o custom-columns=POD:.metadata.name --no-headers | grep mypostgre | grep -v deploy)
+oc rsh $(oc get pods -l cr=mypostgres -o name)
 ```
 
-([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$oc%20rsh%20$(oc%20get%20pods%20-o%20custom-columns=POD:.metadata.name%20--no-headers%20%7C%20grep%20mypostgre%20%7C%20grep%20-v%20deploy)&completion=Connected%20to%20pod. "oc rsh pod"){.didact})
+([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$oc+rsh+%24%28oc+get+pods+-l+cr%3Dmypostgres+-o+name%29&completion=Connected%20to%20pod. "oc rsh pod"){.didact})
 
 ```
 psql -U camel-k-example example \
@@ -145,7 +145,7 @@ exit
 
 The integration is all contained in a single file named `Transformations.java` ([open](didact://?commandId=vscode.openFolder&projectFilePath=Transformations.java&completion=Opened%20the%20Transformations.java%20file "Opens the Transformations.java file"){.didact}).
 
-Additional generic support classes (customizers) are present in the `customizers` directory, to simplify the configuration of MongoDB, PostgreSQL and the CSV dataformat.
+Additional generic support classes (customizers) are present in the `customizers` directory, to simplify the configuration of PostgreSQL and the CSV dataformat.
 
 We're ready to run the integration on our `camel-transformations` project in the cluster.
 
