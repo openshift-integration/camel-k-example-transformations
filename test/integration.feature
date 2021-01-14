@@ -7,8 +7,8 @@ Feature: integration print the correct messages
       | password  | transformations |
 
   Scenario:
-    Given integration transformations is running
-    Then integration transformations should print Information stored
+    Given Camel-K integration transformations is running
+    Then Camel-K integration transformations should print Information stored
     When SQL query: SELECT COUNT(id) AS NUMROWS FROM measurements
     Then verify column NUMROWS=1
 
