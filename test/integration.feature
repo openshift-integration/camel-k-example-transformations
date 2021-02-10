@@ -6,7 +6,7 @@ Feature: integration print the correct messages
       | username  | camel-k-example |
       | password  | transformations |
 
-  Scenario:
+  Scenario: Integration transformations store information to the database
     Given Camel-K integration transformations is running
     Then Camel-K integration transformations should print Information stored
     When SQL query: SELECT COUNT(id) AS NUMROWS FROM measurements
