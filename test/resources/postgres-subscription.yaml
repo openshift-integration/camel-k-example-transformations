@@ -1,7 +1,7 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: postgresql-operator-dev4devs-com
+  name: postgresql-operator
 spec:
   channel: alpha
   installPlanApproval: Automatic
