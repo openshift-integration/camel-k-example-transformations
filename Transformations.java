@@ -1,4 +1,4 @@
-// camel-k: language=java property-file=transformation.properties 
+// camel-k: language=java property=file:transformation.properties 
 // camel-k: dependency=camel:jacksonxml 
 // camel-k: dependency=camel:http 
 // camel-k: dependency=camel:gson
