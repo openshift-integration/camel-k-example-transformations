@@ -5,13 +5,16 @@ config:
         - groupId: org.postgresql
           artifactId: postgresql
           version: "@postgresql.version@"
+    resources:
+      - resources/postgres-subscription.yaml
+      - resources/camel-k-subscription.yaml
+      - resources/database.yaml
+      - resources/operatorgroup.yaml
   namespace:
     temporary: true
+    
 pre:
-- name: Create PostgreSQL 
-  script: scripts/createPostgreSQL.sh
 - name: integrations
   run: |
     cd ..
-    kamel install -w -n ${YAKS_NAMESPACE}
     kamel run Transformations.java -n ${YAKS_NAMESPACE}
