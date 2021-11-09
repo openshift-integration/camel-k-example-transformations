@@ -1,17 +1,17 @@
 config:
   runtime:
-    settings:
-      dependencies:
-        - groupId: org.postgresql
-          artifactId: postgresql
-          version: "@postgresql.version@"
-  namespace:
-    temporary: true
-pre:
-- name: Create PostgreSQL 
-  script: scripts/createPostgreSQL.sh
-- name: integrations
-  run: |
-    cd ..
-    kamel install -w -n ${YAKS_NAMESPACE}
-    kamel run Transformations.java -n ${YAKS_NAMESPACE}
+    env:
+      - name: YAKS_CAMELK_AUTO_REMOVE_RESOURCES
+        value: false
+      - name: YAKS_KUBERNETES_AUTO_REMOVE_RESOURCES
+        value: false
+      - name: YAKS_TESTCONTAINERS_AUTO_REMOVE_RESOURCES
+        value: false
+      - name: YAKS_CAMELK_SUPPORT_VARIABLES_IN_SOURCES
+        value: false
+    resources:
+      - ../Transformations.java
+      - ../data.csv
+      - transformation-test.properties
+    testcontainers:
+      enabled: true
