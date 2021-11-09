@@ -1,10 +1,10 @@
-// camel-k: language=java property=file:transformation.properties 
-// camel-k: dependency=camel:jacksonxml 
-// camel-k: dependency=camel:http 
+// camel-k: language=java property=file:transformation.properties
+// camel-k: dependency=camel:jacksonxml
+// camel-k: dependency=camel:http
 // camel-k: dependency=camel:gson
-// camel-k: dependency=camel:jdbc 
-// camel-k: dependency=camel:csv 
-// camel-k: dependency=mvn:org.postgresql:postgresql:jar:42.2.13 
+// camel-k: dependency=camel:jdbc
+// camel-k: dependency=camel:csv
+// camel-k: dependency=mvn:org.postgresql:postgresql:jar:42.2.13
 // camel-k: dependency=mvn:org.apache.commons:commons-dbcp2:jar:2.7.0
 
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ public class Transformations extends RouteBuilder {
         // on each row, we query an XML API service
         .setBody().constant("").setHeader(Exchange.HTTP_METHOD, constant("GET"))
         .setHeader(Exchange.HTTP_QUERY, simple("lat=${exchangeProperty.lat}&lon=${exchangeProperty.lon}&format=xml"))
-        .to("https://nominatim.openstreetmap.org/reverse").unmarshal().jacksonxml()
+        .to("{{openstreetmap.url}}").unmarshal().jacksonxml()
 
         // we store on exchange properties all the data we are interested in
         .process(processXML)
@@ -75,14 +75,14 @@ public class Transformations extends RouteBuilder {
         .log("Information stored");
   }
 
-  private final class CollectToListStrategy extends AbstractListAggregationStrategy<Object> {
+  private static final class CollectToListStrategy extends AbstractListAggregationStrategy<Object> {
     @Override
     public Object getValue(Exchange exchange) {
       return exchange.getMessage().getBody();
     }
   }
 
-  private final class GeoJSONProcessor implements Processor {
+  private static final class GeoJSONProcessor implements Processor {
     @Override
     public void process(Exchange exchange) throws Exception {
       Map<String, Object> res = new HashMap<String, Object>();
@@ -92,7 +92,7 @@ public class Transformations extends RouteBuilder {
     }
   }
 
-  private final class DBProcessor implements Processor {
+  private static final class DBProcessor implements Processor {
     @Override
     public void process(Exchange exchange) throws Exception {
       @SuppressWarnings("unchecked")
@@ -126,7 +126,7 @@ public class Transformations extends RouteBuilder {
     }
   }
 
-  private final class XMLProcessor implements Processor {
+  private static final class XMLProcessor implements Processor {
     @Override
     public void process(Exchange exchange) throws Exception {
       @SuppressWarnings("unchecked")
@@ -135,7 +135,7 @@ public class Transformations extends RouteBuilder {
     }
   }
 
-  private final class CSVProcessor implements Processor {
+  private static final class CSVProcessor implements Processor {
     @Override
     public void process(Exchange exchange) throws Exception {
       @SuppressWarnings("unchecked")
