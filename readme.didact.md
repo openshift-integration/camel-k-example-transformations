@@ -106,7 +106,7 @@ You can now proceed to the next section.
 
 ## 2. Setting up complementary database
 
-This example uses a PostgreSQL database. We want to install it on a the project `camel-transformations`. We can go to the OpenShift 4.x WebConsole page, use the OperatorHub menu item on the left hand side menu and use it to find and install "PostgreSQL Operator by Dev4Ddevs.com". This will install the operator and may take a couple minutes to install.
+This example uses a PostgreSQL database. We want to install it on a the project `camel-transformations`. We can go to the OpenShift 4.x WebConsole page, use the OperatorHub menu item on the left hand side menu and use it to find and install "Crunchy Postgres for Kubernetes". This will install the operator and may take a couple minutes to install.
 
 Once the operator is installed, we can create a new database using
 
@@ -118,20 +118,21 @@ oc create -f test/resources/postgres.yaml
 We connect to the database pod to create a table and add data to be extracted later.
 
 ```
-oc rsh $(oc get pods -l cr=mypostgres -o name)
+oc rsh $(oc get pods -l postgres-operator.crunchydata.com/role=master -o name)
 ```
 
-([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$oc+rsh+%24%28oc+get+pods+-l+cr%3Dmypostgres+-o+name%29&completion=Connected%20to%20pod. "oc rsh pod"){.didact})
+([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$oc%20rsh%20%24%28oc%20get%20pods%20-l%20postgres-operator.crunchydata.com%2Frole%3Dmaster%20-o%20name%29&completion=Connected%20to%20pod. "oc rsh pod"){.didact})
 
 ```
-psql -U camel-k-example example \
+psql -U postgres example \
 -c "CREATE TABLE descriptions (id varchar(10), info varchar(30));
 CREATE TABLE measurements (id serial, geojson varchar);
 INSERT INTO descriptions (id, info) VALUES ('SO2', 'Nitric oxide is a free radical');
-INSERT INTO descriptions (id, info) VALUES ('NO2', 'Toxic gas');"
+INSERT INTO descriptions (id, info) VALUES ('NO2', 'Toxic gas');
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO postgresadmin;
+GRANT USAGE, SELECT ON SEQUENCE measurements_id_seq TO postgresadmin;"
 ```
-
-([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$psql%20-U%20camel-k-example%20example%20-c%20%22CREATE%20TABLE%20descriptions%20(id%20varchar(10),%20info%20varchar(30));CREATE%20TABLE%20measurements%20(id%20serial,%20geojson%20varchar);INSERT%20INTO%20descriptions%20(id,%20info)%20VALUES%20('SO2',%20'Nitric%20oxide%20is%20a%20free%20radical');INSERT%20INTO%20descriptions%20(id,%20info)%20VALUES%20('NO2',%20'Toxic%20gas');%22&completion=Connected%20to%20database%20and%20added%20data. "psql -U camel-k-example example"){.didact})
+([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$psql%20-U%20postgres%20example%20%5C%0A-c%20%22CREATE%20TABLE%20descriptions%20%28id%20varchar%2810%29%2C%20info%20varchar%2830%29%29%3B%0ACREATE%20TABLE%20measurements%20%28id%20serial%2C%20geojson%20varchar%29%3B%0AINSERT%20INTO%20descriptions%20%28id%2C%20info%29%20VALUES%20%28%27SO2%27%2C%20%27Nitric%20oxide%20is%20a%20free%20radical%27%29%3B%0AINSERT%20INTO%20descriptions%20%28id%2C%20info%29%20VALUES%20%28%27NO2%27%2C%20%27Toxic%20gas%27%29%3B%0AGRANT%20ALL%20PRIVILEGES%20ON%20ALL%20TABLES%20IN%20SCHEMA%20public%20TO%20postgresadmin%3B%0AGRANT%20USAGE%2C%20SELECT%20ON%20SEQUENCE%20measurements_id_seq%20TO%20postgresadmin%3B%22&completion=Connected%20to%20database%20and%20added%20data. "psql -U postgres example"){.didact})
 
 ```
 exit
@@ -139,7 +140,19 @@ exit
 
 ([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$exit&completion=Pod%20connection%20closed. "Pod connection closed."){.didact})
 
+Now, we need to find out Postgres username, password and hostname and update the values in the `transformation.properties`.
+```
+USER_NAME=$(oc get secret postgres-pguser-postgresadmin --template={{.data.user}} | base64 -d)
+USER_PASSWORD=$(oc get secret postgres-pguser-postgresadmin --template={{.data.password}} | base64 -d)
+HOST=$(oc get secret postgres-pguser-postgresadmin --template={{.data.host}} | base64 -d)
 
+PASSWORD_SKIP_SPEC_CHAR=$(sed -e 's/[&\\/]/\\&/g; s/$/\\/' -e '$s/\\$//' <<<"$USER_PASSWORD")
+sed -i "s/=camel-k-example/=$USER_NAME/g" transformation.properties
+sed -i "s/=transformations/=$PASSWORD_SKIP_SPEC_CHAR/g" transformation.properties
+sed -i "s/=mypostgres/=$HOST/g" transformation.properties
+```
+
+([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$USER_NAME%3D%24%28oc%20get%20secret%20postgres-pguser-postgresadmin%20--template%3D%7B%7B.data.user%7D%7D%20%7C%20base64%20-d%29%0AUSER_PASSWORD%3D%24%28oc%20get%20secret%20postgres-pguser-postgresadmin%20--template%3D%7B%7B.data.password%7D%7D%20%7C%20base64%20-d%29%0AHOST%3D%24%28oc%20get%20secret%20postgres-pguser-postgresadmin%20--template%3D%7B%7B.data.host%7D%7D%20%7C%20base64%20-d%29%0A%0APASSWORD_SKIP_SPEC_CHAR%3D%24%28sed%20-e%20%27s%2F%5B%26%5C%5C%2F%5D%2F%5C%5C%26%2Fg%3B%20s%2F%24%2F%5C%5C%2F%27%20-e%20%27%24s%2F%5C%5C%24%2F%2F%27%20%3C%3C%3C%22%24USER_PASSWORD%22%29%0Ased%20-i%20%22s%2F%3Dcamel-k-example%2F%3D%24USER_NAME%2Fg%22%20transformation.properties%0Ased%20-i%20%22s%2F%3Dtransformations%2F%3D%24PASSWORD_SKIP_SPEC_CHAR%2Fg%22%20transformation.properties%0Ased%20-i%20%22s%2F%3Dmypostgres%2F%3D%24HOST%2Fg%22%20transformation.properties&completion=Values%20in%20transformation.properties%20file%20were%20updated. "Values in transformation.properties file were updated."){.didact})
 
 ## 3. Running the integration
 
@@ -213,3 +226,4 @@ oc delete project camel-transformations
 ```
 
 ([^ execute](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=camelTerm$$oc%20delete%20project%20camel-transformations&completion=Removed%20the%20project%20from%20the%20cluster. "Cleans up the cluster after running the example"){.didact})
+
