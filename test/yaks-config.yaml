@@ -15,3 +15,7 @@ config:
       - transformation-test.properties
     testcontainers:
       enabled: true
+post:
+  - name: print dump
+    if: env:CI=true && failure()
+    run: kamel dump
