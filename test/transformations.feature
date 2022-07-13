@@ -1,4 +1,4 @@
-Feature: integration print the correct messages
+Feature: Data transformation
 
   Scenario: Start PostgreSQL
     Given Database init script
@@ -12,13 +12,13 @@ Feature: integration print the correct messages
     Then start PostgreSQL container
 
   Scenario: Create transformations integration
-    Given Camel-K resource polling configuration
+    Given Camel K resource polling configuration
       | maxAttempts          | 200   |
       | delayBetweenAttempts | 2000  |
-    Given Camel-K integration property file transformation-test.properties
-    When load Camel-K integration Transformations.java
-    Then Camel-K integration transformations should be running
-    Then Camel-K integration transformations should print Information stored
+    Given Camel K integration property file transformation-test.properties
+    When load Camel K integration Transformations.java
+    Then Camel K integration transformations should be running
+    Then Camel K integration transformations should print Information stored
 
   Scenario: Integration should store information to the database
     Given SQL query max retry attempts: 10
@@ -30,5 +30,5 @@ Feature: integration print the correct messages
     When SQL query: SELECT COUNT(id) AS NUMROWS FROM measurements
     Then verify column NUMROWS=1
 
-  Scenario: Remove Camel-K integrations
-    Given delete Camel-K integration transformations
+  Scenario: Remove Camel K integrations
+    Given delete Camel K integration transformations
