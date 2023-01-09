@@ -67,7 +67,7 @@ public class Transformations extends RouteBuilder {
         .aggregate(constant(true), aggregationStrategy).completionSize(5).process(buildGeoJSON).marshal()
         .json(JsonLibrary.Gson)
 
-        .to("log:info?showBody=true")
+        .to("log:info?showStreams=true")
         // and finally store the result on the postgres database
         .setBody(simple("INSERT INTO measurements (geojson) VALUES ('${body}')")).to("jdbc:postgresBean")
 
