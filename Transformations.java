@@ -51,7 +51,7 @@ public class Transformations extends RouteBuilder {
         // on each row, we query an XML API service
         .setBody().constant("").setHeader(Exchange.HTTP_METHOD, constant("GET"))
         .setHeader(Exchange.HTTP_QUERY, simple("lat=${exchangeProperty.lat}&lon=${exchangeProperty.lon}&format=xml"))
-        .to("{{openstreetmap.url}}").unmarshal().jacksonxml()
+        .to("{{openstreetmap.url}}").unmarshal().jacksonXml()
 
         // we store on exchange properties all the data we are interested in
         .process(processXML)
@@ -67,7 +67,7 @@ public class Transformations extends RouteBuilder {
         .aggregate(constant(true), aggregationStrategy).completionSize(5).process(buildGeoJSON).marshal()
         .json(JsonLibrary.Gson)
 
-        .to("log:info?showBody=true")
+        .to("log:info?showStreams=true")
         // and finally store the result on the postgres database
         .setBody(simple("INSERT INTO measurements (geojson) VALUES ('${body}')")).to("jdbc:postgresBean")
 
