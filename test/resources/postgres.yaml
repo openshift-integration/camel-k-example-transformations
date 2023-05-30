@@ -1,19 +1,32 @@
-apiVersion: postgresql.dev4devs.com/v1alpha1
-kind: Database
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PostgresCluster
 metadata:
-  name: mypostgres
+  name: postgres
 spec:
-  size: 1
-  databaseMemoryLimit: "512Mi"
-  databaseMemoryRequest: "128Mi"
-  databaseCpuLimit: "60m"
-  databaseCpu: "30m"
-  databaseStorageRequest: "1Gi"
-  image: "centos/postgresql-96-centos7"
-  databaseNameKeyEnvVar: "POSTGRESQL_DATABASE"
-  databasePasswordKeyEnvVar: "POSTGRESQL_PASSWORD"
-  databaseUserKeyEnvVar: "POSTGRESQL_USER"
-
-  databaseName: "example"
-  databasePassword: "transformations"
-  databaseUser: "camel-k-example"
+  users:
+    - databases:
+        - test
+        - example
+      name: postgresadmin
+  image: registry.developers.crunchydata.com/crunchydata/crunchy-postgres:centos8-13.4-1
+  postgresVersion: 13
+  instances:
+    - name: instance1
+      dataVolumeClaimSpec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: 1Gi
+  backups:
+    pgbackrest:
+      image: registry.developers.crunchydata.com/crunchydata/crunchy-pgbackrest:centos8-2.35-0
+      repos:
+        - name: repo1
+          volume:
+            volumeClaimSpec:
+              accessModes:
+                - "ReadWriteOnce"
+              resources:
+                requests:
+                  storage: 1Gi
