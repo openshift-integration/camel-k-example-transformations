@@ -109,9 +109,9 @@ USER_PASSWORD=$(oc get secret postgres-pguser-postgresadmin --template={{.data.p
 HOST=$(oc get secret postgres-pguser-postgresadmin --template={{.data.host}} | base64 -d)
 PASSWORD_SKIP_SPEC_CHAR=$(sed -e 's/[&\\/]/\\&/g; s/$/\\/' -e '$s/\\$//' <<<"$USER_PASSWORD")
 
-sed -i -e "s/^postgresql.user=.*/postgresql.user=$USER_NAME/" transformation.properties
-sed -i -e "s/^postgresql.password=.*/postgresql.password=$PASSWORD_SKIP_SPEC_CHAR/" transformation.properties
-sed -i -e "s/^postgresql.host=.*/postgresql.host=$HOST/" transformation.properties
+sed -i '' "s/^postgresql.user=.*/postgresql.user=$USER_NAME/" transformation.properties
+sed -i '' "s/^postgresql.password=.*/postgresql.password=$PASSWORD_SKIP_SPEC_CHAR/" transformation.properties
+sed -i '' "s/^postgresql.host=.*/postgresql.host=$HOST/" transformation.properties
 ```
 
 ## 3. Running the integration
