@@ -1,14 +1,14 @@
-# Camel K Transformations Example
+[# Camel K Transformations Example
 
 This example demonstrates how to transform data with Camel K by showing how to deal with common formats like XML and JSON and how to connect to databases.
 
-![Flux diagram](images/flux_diagram.svg)
+!\[Flux diagram\](images/flux_diagram.svg)
 
-We will start by reading a CSV file and loop over each row independently. For each row, we will query an XML API and a database and use all the data collected to build a JSON file. Finally we will collect and aggregate all rows to build a final JSON to be stored on a database. The final JSON is also a valid [GeoJSON](https://geojson.org/).
+We will start by reading a CSV file and loop over each row independently. For each row, we will query an XML API and a database and use all the data collected to build a JSON file. Finally we will collect and aggregate all rows to build a final JSON to be stored on a database. The final JSON is also a valid \[GeoJSON\](https://geojson.org/).
 
 ## Preparing the cluster
 
-This example can be run on any OpenShift 4.3+ cluster or a local development instance (such as [CRC](https://github.com/code-ready/crc)). Ensure that you have a cluster available and login to it using the OpenShift `oc` command line tool.
+This example can be run on any OpenShift 4.3+ cluster or a local development instance (such as \[CRC\](https://github.com/code-ready/crc)). Ensure that you have a cluster available and login to it using the OpenShift `oc` command line tool.
 
 You can use the following section to check if your environment is configured properly.
 
@@ -107,10 +107,11 @@ Now, we need to find out Postgres username, password and hostname and update the
 USER_NAME=$(oc get secret postgres-pguser-postgresadmin --template={{.data.user}} | base64 -d)
 USER_PASSWORD=$(oc get secret postgres-pguser-postgresadmin --template={{.data.password}} | base64 -d)
 HOST=$(oc get secret postgres-pguser-postgresadmin --template={{.data.host}} | base64 -d)
-PASSWORD_SKIP_SPEC_CHAR=$(sed -e 's/[&\\/]/\\&/g; s/$/\\/' -e '$s/\\$//' <<<"$USER_PASSWORD")
-sed -i "s/=camel-k-example/=$USER_NAME/g" transformation.properties
-sed -i "s/=transformations/=$PASSWORD_SKIP_SPEC_CHAR/g" transformation.properties
-sed -i "s/=mypostgres/=$HOST/g" transformation.properties
+PASSWORD_SKIP_SPEC_CHAR=$(sed -e 's/\[&\\/\]/\\&/g; s/$/\\/' -e '$s/\\$//' <<<"$USER_PASSWORD")
+
+sed -i -e "s/^postgresql.user=.*/postgresql.user=$USER_NAME/" transformation.properties
+sed -i -e "s/^postgresql.password=.*/postgresql.password=$PASSWORD_SKIP_SPEC_CHAR/" transformation.properties
+sed -i -e "s/^postgresql.host=.*/postgresql.host=$HOST/" transformation.properties
 ```
 
 ## 3. Running the integration
@@ -175,4 +176,4 @@ To clean up everything, execute the following command which will remove the proj
 
 ```
 oc delete project camel-transformations
-```
+```](transformation.properties-e)
