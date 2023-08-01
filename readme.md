@@ -176,4 +176,4 @@ To clean up everything, execute the following command which will remove the proj
 
 ```
 oc delete project camel-transformations
-```](transformation.properties-e)
+```
