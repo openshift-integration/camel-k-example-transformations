@@ -4,11 +4,11 @@ This example demonstrates how to transform data with Camel K by showing how to d
 
 ![Flux diagram](images/flux_diagram.svg)
 
-We will start by reading a CSV file and loop over each row independently. For each row, we will query an XML API and a database and use all the data collected to build a JSON file. Finally we will collect and aggregate all rows to build a final JSON to be stored on a database. The final JSON is also a valid \[GeoJSON\](https://geojson.org/).
+We will start by reading a CSV file and loop over each row independently. For each row, we will query an XML API and a database and use all the data collected to build a JSON file. Finally we will collect and aggregate all rows to build a final JSON to be stored on a database. The final JSON is also a valid [GeoJSON](https://geojson.org/).
 
 ## Preparing the cluster
 
-This example can be run on any OpenShift 4.3+ cluster or a local development instance (such as \[CRC\](https://github.com/code-ready/crc)). Ensure that you have a cluster available and login to it using the OpenShift `oc` command line tool.
+This example can be run on any OpenShift 4.3+ cluster or a local development instance (such as [CRC](https://github.com/code-ready/crc)). Ensure that you have a cluster available and login to it using the OpenShift `oc` command line tool.
 
 You can use the following section to check if your environment is configured properly.
 
