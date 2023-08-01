@@ -107,7 +107,7 @@ Now, we need to find out Postgres username, password and hostname and update the
 USER_NAME=$(oc get secret postgres-pguser-postgresadmin --template={{.data.user}} | base64 -d)
 USER_PASSWORD=$(oc get secret postgres-pguser-postgresadmin --template={{.data.password}} | base64 -d)
 HOST=$(oc get secret postgres-pguser-postgresadmin --template={{.data.host}} | base64 -d)
-PASSWORD_SKIP_SPEC_CHAR=$(sed -e 's/\[&\\/\]/\\&/g; s/$/\\/' -e '$s/\\$//' <<<"$USER_PASSWORD")
+PASSWORD_SKIP_SPEC_CHAR=$(sed -e 's/[&\\/]/\\&/g; s/$/\\/' -e '$s/\\$//' <<<"$USER_PASSWORD")
 
 sed -i -e "s/^postgresql.user=.*/postgresql.user=$USER_NAME/" transformation.properties
 sed -i -e "s/^postgresql.password=.*/postgresql.password=$PASSWORD_SKIP_SPEC_CHAR/" transformation.properties
