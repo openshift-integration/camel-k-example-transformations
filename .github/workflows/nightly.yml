@@ -91,7 +91,7 @@ jobs:
       - name: YAKS Tests
         run: |
           # Then run integration tests
-          yaks run test/service-api.feature $YAKS_RUN_OPTIONS
+          yaks run test/transformations.feature $YAKS_RUN_OPTIONS
       - name: YAKS Report
         if: failure()
         run: |
