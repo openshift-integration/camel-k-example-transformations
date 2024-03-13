@@ -110,8 +110,8 @@ public class Transformations extends RouteBuilder {
       }
 
       List<String> coordinates = new ArrayList<String>();
-      coordinates.add(exchange.getProperty("lat", "").toString());
-      coordinates.add(exchange.getProperty("lon", "").toString());
+      coordinates.add(exchange.getProperty("lat", String.class));
+      coordinates.add(exchange.getProperty("lon", String.class));
 
       Map<String, Object> geometry = new HashMap<String, Object>();
       geometry.put("type", "Point");
